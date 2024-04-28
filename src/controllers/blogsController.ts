@@ -4,12 +4,10 @@ import User from "../database/models/usersModel";
 import Comment from "../database/models/commentsModel";
 import Like from "../database/models/likesModel";
 import nodemailer from "nodemailer";
-import Subscribe from "../database/models/subscribeModel";
 
 export const getBlogs = async function (req: Request, res: Response) {
   try {
     const blogs = await Blog.find().populate("author");
-    console.log(blogs);
     res.status(200).json({ ok: true, message: "success", data: blogs });
   } catch (err) {
     res.status(500).json({ ok: false, message: "fail", errors: err });
