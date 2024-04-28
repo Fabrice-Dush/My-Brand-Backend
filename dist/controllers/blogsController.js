@@ -22,7 +22,6 @@ const getBlogs = function (req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const blogs = yield blogsModel_1.default.find().populate("author");
-            console.log(blogs);
             res.status(200).json({ ok: true, message: "success", data: blogs });
         }
         catch (err) {
