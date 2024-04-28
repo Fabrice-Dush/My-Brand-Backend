@@ -4,7 +4,6 @@ import User from "../database/models/usersModel";
 import Comment from "../database/models/commentsModel";
 import Like from "../database/models/likesModel";
 import nodemailer from "nodemailer";
-import Subscribe from "../database/models/subscribeModel";
 
 export const getBlogs = async function (req: Request, res: Response) {
   try {
