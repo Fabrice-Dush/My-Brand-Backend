@@ -7,6 +7,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const subscribeSchema = new mongoose_1.default.Schema({
     email: {
         type: String,
+        unique: true,
         trim: true,
         lowercase: true,
     },

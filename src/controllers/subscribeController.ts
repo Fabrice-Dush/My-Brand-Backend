@@ -4,14 +4,9 @@ import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
-  host: "stmp.gmail.com",
-  // port: 587,
-  port: 465,
-  // secure: false, // true for 465, false for other ports
-  secure: true, // true for 465, false for other ports
   auth: {
-    user: process.env.MAIL_EMAIL,
-    pass: process.env.MAIL_PASSWORD,
+    user: "dushimimanafabricerwanda@gmail.com",
+    pass: "zenz lbbo eorl gltg",
   },
 });
 
@@ -21,12 +16,14 @@ const sendSubscriptionEmail = async (email: string) => {
       from: process.env.MAIL_EMAIL,
       to: email,
       subject: "Subscription Confirmation",
-      text: `Thank you for subscribing to My Page! You have successfully subscribed to receive updates.
+      html: `<p>Thank you for subscribing to our site!</p>
+      <p>You have successfully subscribed to receive updates.
       You will receive updates everytime we add new article to our site.
+      </p>
+      <h3>Click this link to visit our site: http://127.0.0.1:5500/blogs.html</h3>
       `,
     };
     const sent = await transporter.sendMail(mailOptions);
-    console.log(sent);
     console.log("Subscription email sent successfully");
   } catch (error) {
     console.error("Error sending subscription email:", error);
@@ -46,14 +43,16 @@ export const getSubscribers = async function (req: Request, res: Response) {
 export const createSubscribers = async function (req: Request, res: Response) {
   try {
     const subscriber = new Subscribe({ ...req.body });
-    await subscriber.save();
+    await subscriber.save({ validateBeforeSave: true });
     console.log("Subscriber email: ", subscriber.email.trim());
-    // await sendSubscriptionEmail(subscriber.email.trim());
+
+    await sendSubscriptionEmail(subscriber.email.trim());
     const subscribers = await Subscribe.find();
 
     res.status(201).json({ ok: true, message: "success", data: subscribers });
-  } catch (err) {
+  } catch (err: any) {
     console.log("Error in subscriber: ", err);
+    err.message = "You already subscribed";
     res.status(500).json({ ok: false, message: "fail", errors: err });
   }
 };

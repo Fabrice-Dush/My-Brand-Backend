@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import Blog from "../database/models/blogsModel";
 import User from "../database/models/usersModel";
-import Comment from "../database/models/commentsModel";
-import Like from "../database/models/likesModel";
 import nodemailer from "nodemailer";
+import multer from "multer";
+import { v2 as cloudinary } from "cloudinary";
+import Subscribe from "../database/models/subscribeModel";
 
 export const getBlogs = async function (req: Request, res: Response) {
   try {
@@ -18,7 +19,6 @@ export const getBlogs = async function (req: Request, res: Response) {
 export const getBlog = async function (req: Request, res: Response) {
   try {
     const { slug } = req.params;
-    console.log(slug);
     const blog = await Blog.findOne({ slug })
       .populate("author")
       .populate({
@@ -26,7 +26,6 @@ export const getBlog = async function (req: Request, res: Response) {
         populate: { path: "owner" },
       })
       .populate({ path: "comments", populate: { path: "author" } });
-    console.log(blog);
     const foundLike = blog.likes.find(
       (like: any) =>
         like.owner._id.toString() === req.body.authenticatedUser?._id.toString()
@@ -39,43 +38,73 @@ export const getBlog = async function (req: Request, res: Response) {
   }
 };
 
-export const createBlogForm = function (req: Request, res: Response) {
-  try {
-    res.render("new");
-  } catch (err) {
-    res.redirect("/blogs");
-  }
-};
-
 const transporter = nodemailer.createTransport({
   service: "gmail",
-  host: "stmp.gmail.com",
-  port: 587,
-  secure: false, // true for 465, false for other ports
   auth: {
-    user: process.env.MAIL_EMAIL,
-    pass: process.env.MAIL_PASSWORD,
+    user: "dushimimanafabricerwanda@gmail.com",
+    pass: "zenz lbbo eorl gltg",
   },
 });
 
-// const sendSubscriptionEmail = async (email: string, blog) => {
-//   try {
-//     const mailOptions = {
-//       from: process.env.MAIL_EMAIL,
-//       to: email,
-//       subject: "A new article was added to the site",
-//       text: `Visit our wesbite to learn more: http://127.0.0.1:5500/blogs`,
-//     };
-//     await transporter.sendMail(mailOptions);
-//     console.log("Subscription email sent successfully");
-//   } catch (error) {
-//     console.error("Error sending subscription email:", error);
-//   }
-// };
+const sendSubscriptionEmail = async (emails: string[]) => {
+  try {
+    const mailOptions = {
+      from: process.env.MAIL_EMAIL,
+      to: `${emails.join(",")}`,
+      subject: "A new article was added to the site",
+      html: `<h3>Click this link to visit our site: http://127.0.0.1:5500/blogs.html</h3>`,
+    };
+    await transporter.sendMail(mailOptions);
+    console.log("Subscription email sent successfully");
+  } catch (error) {
+    console.error("Error sending subscription email:", error);
+  }
+};
+
+const multerStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "img/");
+  },
+  filename: (req, file, cb) => {
+    const FILE_NAME = file.originalname.split(".")[0];
+    const ext = file.mimetype.split("/")[1];
+    cb(null, `${FILE_NAME}-${Date.now()}.${ext}`);
+  },
+});
+
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image")) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only image files are allowed"), false);
+  }
+};
+
+const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
+
+export const uploadUserPhoto = upload.single("image");
+
+cloudinary.config({
+  cloud_name: "drefu58oe",
+  api_key: "978552827499531",
+  api_secret: "cR6cup_MaLQi0X3t00R4F0D3p3Y",
+});
 
 export const createBlog = async function (req: Request, res: Response) {
   try {
     const { id } = req.body.authenticatedUser;
+    let imagePath = "";
+    await cloudinary.uploader.upload(
+      `img/${req.file.filename}`,
+      { public_id: "olympic_flag" },
+      function (error: any, result) {
+        if (error) throw new Error(error);
+        else {
+          imagePath = result.url;
+        }
+      }
+    );
+
     const blog: any = new Blog({
       ...req.body,
       slug: req.body.title
@@ -83,6 +112,7 @@ export const createBlog = async function (req: Request, res: Response) {
         .split(" ")
         .join("_")
         .toLowerCase(),
+      image: imagePath,
     });
 
     const user = await User.findById(id);
@@ -98,12 +128,12 @@ export const createBlog = async function (req: Request, res: Response) {
     );
     const blogs = await Blog.find();
 
-    //? Sending email to subscribed users
-    // const subscribers = await Subscribe.find();
-    // subscribers.forEach((subscriber) =>
-    //   sendSubscriptionEmail(subscriber.email, blog)
-    // );
+    console.log("Created blog: ", blog);
 
+    //? Sending email to subscribed users
+    const subscribers = await Subscribe.find();
+    const emails = subscribers.map((subscriber) => subscriber.email);
+    await sendSubscriptionEmail(emails);
     res.status(201).json({ ok: true, message: "success", data: blogs });
   } catch (err) {
     console.log("Error creating a new blog");
@@ -112,112 +142,21 @@ export const createBlog = async function (req: Request, res: Response) {
   }
 };
 
-export const createComment = async function (req: Request, res: Response) {
-  try {
-    const { slug } = req.params;
-    const blog = await Blog.findOne({ slug });
-    const newComment: any = new Comment({ text: req.body.comment });
-    newComment.author = req.body.authenticatedUser;
-    blog.comments.push(newComment);
-    await newComment.save();
-    await blog.save();
-
-    const foundBlog = await Blog.findById(blog.id)
-      .populate("author")
-      .populate({ path: "comments", populate: { path: "author" } })
-      .populate({ path: "likes", populate: { path: "owner" } });
-
-    console.log("Blog: ", foundBlog);
-
-    res.status(201).json({ ok: true, message: "success", data: foundBlog });
-  } catch (err) {
-    console.log("Error creating comment: ", err);
-    res.status(500).json({ ok: false, message: "fail", errors: err });
-  }
-};
-
-export const deleteComment = async function (req: Request, res: Response) {
-  try {
-    const { slug, id } = req.params;
-    const updatedBlog = await Blog.findOneAndUpdate(
-      { slug },
-      { $pull: { comments: id } },
-      { new: true, runValidators: true }
-    );
-    const deletedComment = await Comment.findByIdAndDelete(id);
-
-    const foundBlog = await Blog.findById(updatedBlog.id)
-      .populate("author")
-      .populate({ path: "comments", populate: { path: "author" } })
-      .populate({ path: "likes", populate: { path: "owner" } });
-
-    res.status(200).json({ ok: true, message: "success", data: foundBlog });
-  } catch (err) {
-    console.log("Error deleting comment: ", err);
-    res.status(500).json({ ok: false, message: "fail", errors: err });
-  }
-};
-
-export const createLike = async function (req: Request, res: Response) {
-  try {
-    const { slug } = req.params;
-    const blog = await Blog.findOne({ slug }).populate({
-      path: "likes",
-      populate: { path: "owner" },
-    });
-
-    const foundLike = blog.likes.find(
-      (like: any) =>
-        like.owner._id.toString() === req.body.authenticatedUser._id.toString()
-    );
-
-    let actualBlog;
-
-    if (foundLike) {
-      actualBlog = await Blog.findByIdAndUpdate(
-        blog.id,
-        { $pull: { likes: foundLike.id } },
-        { new: true, runValidators: true }
-      );
-      const deletedLike = await Like.findByIdAndDelete(foundLike.id);
-    } else {
-      const like: any = new Like({ likeCount: 1 });
-      like.owner = req.body.authenticatedUser;
-      like.blog = blog;
-      blog.likes.push(like);
-      await like.save();
-      await blog.save();
-      actualBlog = blog;
-    }
-
-    const realBlog = await Blog.findById(actualBlog.id)
-      .populate("author")
-      .populate({ path: "comments", populate: { path: "author" } })
-      .populate({ path: "likes", populate: { path: "owner" } });
-
-    console.log(realBlog);
-
-    res.status(201).json({ ok: true, message: "success", data: realBlog });
-  } catch (err) {
-    res.status(500).json({ ok: false, message: "fail", errors: err });
-  }
-};
-
-export const updateBlogForm = async function (req: Request, res: Response) {
-  try {
-    const { slug } = req.params;
-    const blog = await Blog.findOne({ slug });
-
-    res.render("edit", { blog });
-  } catch (err) {
-    console.log("Error getting something: ", err);
-    res.redirect(`/blogs/${req.params.slug}`);
-  }
-};
-
 export const updateBlog = async function (req: Request, res: Response) {
   try {
     const { slug } = req.params;
+    let imagePath = "";
+    await cloudinary.uploader.upload(
+      `img/${req.file.filename}`,
+      { public_id: "olympic_flag" },
+      function (error: any, result) {
+        if (error) throw new Error(error);
+        else {
+          imagePath = result.url;
+        }
+      }
+    );
+
     const updatedBlog = await Blog.findOneAndUpdate(
       { slug },
       {
@@ -227,10 +166,14 @@ export const updateBlog = async function (req: Request, res: Response) {
           .split(" ")
           .join("_")
           .toLowerCase(),
+        image: imagePath,
       },
       { new: true, runValidators: true }
     );
-    const url = `http://localhost:8000/blogs/${updatedBlog.slug}`;
+
+    console.log("Updated blog: ", updatedBlog);
+
+    const url = `http://localhost:8000/api/blogs/${updatedBlog.slug}`;
     res
       .status(200)
       .json({ ok: true, message: "success", data: updatedBlog, url });
@@ -242,7 +185,6 @@ export const updateBlog = async function (req: Request, res: Response) {
 
 export const deleteBlog = async function (req: Request, res: Response) {
   try {
-    console.log("Reached here");
     const { slug } = req.params;
     await Blog.findOneAndDelete({ slug });
     let blogs = await Blog.find();

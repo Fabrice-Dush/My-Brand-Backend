@@ -2,31 +2,29 @@ import { Request, Response } from "express";
 import Contact from "../database/models/contactsModel";
 import nodemailer from "nodemailer";
 
-// const sendMessageEmail = async (contact) => {
-//   try {
-//     const transporter = nodemailer.createTransport({
-//       service: "gmail",
-//       host: "stmp.gmail.com",
-//       port: 587,
-//       secure: false, // true for 465, false for other ports
-//       auth: {
-//         user: process.env.MAIL_EMAIL,
-//         pass: process.env.MAIL_PASSWORD,
-//       },
-//     });
-//     console.log(contact.email);
-//     const mailOptions = {
-//       from: contact.email,
-//       to: process.env.MAIL_EMAIL,
-//       subject: contact.subject,
-//       text: contact.message,
-//     };
-//     await transporter.sendMail(mailOptions);
-//     console.log("Subscription email sent successfully");
-//   } catch (error) {
-//     console.error("Error sending subscription email:", error);
-//   }
-// };
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "dushimimanafabricerwanda@gmail.com",
+    pass: "zenz lbbo eorl gltg",
+  },
+});
+
+const sendMessageEmail = async (email: string) => {
+  try {
+    const mailOptions = {
+      from: email,
+      to: "dushimimanafabricerwanda@gmail.com",
+      subject: "You have a message on your site 😎😎",
+      html: `<p>You can reply to it or delete it if you want</p>
+      `,
+    };
+    const sent = await transporter.sendMail(mailOptions);
+    console.log("Message sent successfully");
+  } catch (error) {
+    console.error("Error sending subscription email:", error);
+  }
+};
 
 export const getContactForm = function (req: Request, res: Response) {
   res.render("contacts");
@@ -36,7 +34,7 @@ export const createMessage = async function (req: Request, res: Response) {
   try {
     const contact = new Contact({ ...req.body });
     const newContact = await contact.save();
-    // await sendMessageEmail(newContact);
+    await sendMessageEmail(newContact.email);
     res.status(200).json({
       ok: true,
       message: "success",

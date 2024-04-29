@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import User, { loginStatic } from "../database/models/usersModel";
+import nodemailer from "nodemailer";
 import { Request, Response } from "express";
 
 export const login = async function (req: Request, res: Response) {
@@ -28,6 +29,31 @@ const generateToken = function (id) {
   return token;
 };
 
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "dushimimanafabricerwanda@gmail.com",
+    pass: "zenz lbbo eorl gltg",
+  },
+});
+
+const sendSignupEmail = async (email: string) => {
+  try {
+    const mailOptions = {
+      from: process.env.MAIL_EMAIL,
+      to: email,
+      subject: "Welcome to our site 😎😎😎",
+      html: `<p>Your account was created successfully, and now you're part of our community.</p>
+      <h3>Click this link to visit our site: http://127.0.0.1:5500/blogs.html</h3>
+      `,
+    };
+    const sent = await transporter.sendMail(mailOptions);
+    console.log("Subscription email sent successfully");
+  } catch (error) {
+    console.error("Error sending subscription email:", error);
+  }
+};
+
 export const signup = async function (req: Request, res: Response) {
   try {
     const user = {
@@ -42,6 +68,9 @@ export const signup = async function (req: Request, res: Response) {
 
     const newUser = new User(user);
     await newUser.save();
+
+    //? send email to the user
+    await sendSignupEmail(newUser.email);
 
     const token = generateToken(newUser.id);
     res

@@ -18,13 +18,31 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const connect_flash_1 = __importDefault(require("connect-flash"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const dotenv_1 = __importDefault(require("dotenv"));
+// import swaggerJsDoc from "swagger-jsdoc";
+// import swaggerUI from "swagger-ui-express";
 const cors_1 = __importDefault(require("cors"));
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
 const blogRoutes_1 = __importDefault(require("./routes/blogRoutes"));
 const contactRoutes_1 = __importDefault(require("./routes/contactRoutes"));
 const subscribeRoutes_1 = __importDefault(require("./routes/subscribeRoutes"));
-const middleware_1 = require("./middleware/middleware");
+const commentRoutes_1 = __importDefault(require("./routes/commentRoutes"));
+const likeRoutes_1 = __importDefault(require("./routes/likeRoutes"));
 const app = (0, express_1.default)();
+// const options = {
+//   definition: {
+//     openapi: "3.0.0",
+//     info: {
+//       title: "Node Js Project for mongodb",
+//       version: "1.0.0",
+//     },
+//     servers: [
+//       {
+//         api: "http://localhost:8000",
+//       },
+//     ],
+//   },
+//   apis: ["./mongodb.js"],
+// };
 dotenv_1.default.config();
 (function () {
     return __awaiter(this, void 0, void 0, function* () {
@@ -44,11 +62,12 @@ app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use((0, cookie_parser_1.default)());
 app.use((0, connect_flash_1.default)());
-app.use(middleware_1.checkUser);
-app.use("/", userRoutes_1.default);
-app.use("/contact", contactRoutes_1.default);
-app.use("/blogs", blogRoutes_1.default);
-app.use("/subscribe", subscribeRoutes_1.default);
+app.use("/api/", userRoutes_1.default);
+app.use("/api/contact", contactRoutes_1.default);
+app.use("/api/blogs", blogRoutes_1.default);
+app.use("/api/blogs/:slug/comments", commentRoutes_1.default);
+app.use("/api/subscribe", subscribeRoutes_1.default);
+app.use("/api/blogs/:slug/likes", likeRoutes_1.default);
 //? Global error handling middleware
 app.use(function (err, req, res, next) {
     // res.status(500).json({mess})
