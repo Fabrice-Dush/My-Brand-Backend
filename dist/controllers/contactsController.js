@@ -27,7 +27,7 @@ const sendMessageEmail = (email) => __awaiter(void 0, void 0, void 0, function* 
         const mailOptions = {
             from: email,
             to: "dushimimanafabricerwanda@gmail.com",
-            subject: "You have a message on your site 😎😎",
+            subject: "You have a message on your site 😎😎😎",
             html: `<p>You can reply to it or delete it if you want</p>
       `,
         };
