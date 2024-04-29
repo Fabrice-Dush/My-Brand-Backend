@@ -17,14 +17,9 @@ const subscribeModel_1 = __importDefault(require("../database/models/subscribeMo
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const transporter = nodemailer_1.default.createTransport({
     service: "gmail",
-    host: "stmp.gmail.com",
-    // port: 587,
-    port: 465,
-    // secure: false, // true for 465, false for other ports
-    secure: true, // true for 465, false for other ports
     auth: {
-        user: process.env.MAIL_EMAIL,
-        pass: process.env.MAIL_PASSWORD,
+        user: "dushimimanafabricerwanda@gmail.com",
+        pass: "zenz lbbo eorl gltg",
     },
 });
 const sendSubscriptionEmail = (email) => __awaiter(void 0, void 0, void 0, function* () {
@@ -33,12 +28,14 @@ const sendSubscriptionEmail = (email) => __awaiter(void 0, void 0, void 0, funct
             from: process.env.MAIL_EMAIL,
             to: email,
             subject: "Subscription Confirmation",
-            text: `Thank you for subscribing to My Page! You have successfully subscribed to receive updates.
+            html: `<p>Thank you for subscribing to our site!</p>
+      <p>You have successfully subscribed to receive updates.
       You will receive updates everytime we add new article to our site.
+      </p>
+      <h3>Click this link to visit our site: http://127.0.0.1:5500/blogs.html</h3>
       `,
         };
         const sent = yield transporter.sendMail(mailOptions);
-        console.log(sent);
         console.log("Subscription email sent successfully");
     }
     catch (error) {
@@ -62,14 +59,15 @@ const createSubscribers = function (req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const subscriber = new subscribeModel_1.default(Object.assign({}, req.body));
-            yield subscriber.save();
+            yield subscriber.save({ validateBeforeSave: true });
             console.log("Subscriber email: ", subscriber.email.trim());
-            // await sendSubscriptionEmail(subscriber.email.trim());
+            yield sendSubscriptionEmail(subscriber.email.trim());
             const subscribers = yield subscribeModel_1.default.find();
             res.status(201).json({ ok: true, message: "success", data: subscribers });
         }
         catch (err) {
             console.log("Error in subscriber: ", err);
+            err.message = "You already subscribed";
             res.status(500).json({ ok: false, message: "fail", errors: err });
         }
     });

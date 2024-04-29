@@ -14,31 +14,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteMessage = exports.getMessages = exports.createMessage = exports.getContactForm = void 0;
 const contactsModel_1 = __importDefault(require("../database/models/contactsModel"));
-// const sendMessageEmail = async (contact) => {
-//   try {
-//     const transporter = nodemailer.createTransport({
-//       service: "gmail",
-//       host: "stmp.gmail.com",
-//       port: 587,
-//       secure: false, // true for 465, false for other ports
-//       auth: {
-//         user: process.env.MAIL_EMAIL,
-//         pass: process.env.MAIL_PASSWORD,
-//       },
-//     });
-//     console.log(contact.email);
-//     const mailOptions = {
-//       from: contact.email,
-//       to: process.env.MAIL_EMAIL,
-//       subject: contact.subject,
-//       text: contact.message,
-//     };
-//     await transporter.sendMail(mailOptions);
-//     console.log("Subscription email sent successfully");
-//   } catch (error) {
-//     console.error("Error sending subscription email:", error);
-//   }
-// };
+const nodemailer_1 = __importDefault(require("nodemailer"));
+const transporter = nodemailer_1.default.createTransport({
+    service: "gmail",
+    auth: {
+        user: "dushimimanafabricerwanda@gmail.com",
+        pass: "zenz lbbo eorl gltg",
+    },
+});
+const sendMessageEmail = (email) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const mailOptions = {
+            from: email,
+            to: "dushimimanafabricerwanda@gmail.com",
+            subject: "You have a message on your site 😎😎",
+            html: `<p>You can reply to it or delete it if you want</p>
+      `,
+        };
+        const sent = yield transporter.sendMail(mailOptions);
+        console.log("Message sent successfully");
+    }
+    catch (error) {
+        console.error("Error sending subscription email:", error);
+    }
+});
 const getContactForm = function (req, res) {
     res.render("contacts");
 };
@@ -48,7 +47,7 @@ const createMessage = function (req, res) {
         try {
             const contact = new contactsModel_1.default(Object.assign({}, req.body));
             const newContact = yield contact.save();
-            // await sendMessageEmail(newContact);
+            yield sendMessageEmail(newContact.email);
             res.status(200).json({
                 ok: true,
                 message: "success",

@@ -12,10 +12,8 @@ export const authenticate = async function (
   try {
     const token: any = req.headers.token;
     if (!token) throw new Error("You need to login to access this resource");
-    console.log(token);
     const decoded: any = await jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.id);
-    console.log(user);
     if (!user) throw new Error("Token is incorrect. Logout and login again.");
     req.body.authenticatedUser = user;
     next();
@@ -94,33 +92,5 @@ export const authorizeComment = async function (
     });
   } catch (err) {
     throw err;
-  }
-};
-
-export const checkUser = async function (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  try {
-    res.locals.page = req.originalUrl;
-    res.locals.user = null;
-    res.locals.username = null;
-    req.body.authenticatedUser = null;
-    const { jwt: token } = req.cookies;
-    if (!token) return next();
-    const decoded: any = await jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
-    if (!user) return next();
-    req.body.authenticatedUser = user;
-    res.locals.username = user.fullname
-      .split(" ")
-      .map((word) => word[0])
-      .join("")
-      .toUpperCase();
-    res.locals.user = user;
-    next();
-  } catch (err) {
-    console.log("Checking error: ", err);
   }
 };
