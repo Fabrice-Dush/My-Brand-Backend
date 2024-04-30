@@ -51,7 +51,7 @@ const sendSubscriptionEmail = async (emails: string[]) => {
       from: process.env.MAIL_EMAIL,
       to: `${emails.join(",")}`,
       subject: "A new article was added to the site",
-      html: `<h3>Click this link to visit our site: http://127.0.0.1:5500/blogs.html</h3>`,
+      html: `<h3>Click this link to visit our site: https://fabrice-dush.github.io/My-Brand-Frontend/blogs.html</h3>`,
     };
     await transporter.sendMail(mailOptions);
     console.log("Subscription email sent successfully");

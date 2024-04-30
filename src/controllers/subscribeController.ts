@@ -20,7 +20,7 @@ const sendSubscriptionEmail = async (email: string) => {
       <p>You have successfully subscribed to receive updates.
       You will receive updates everytime we add new article to our site.
       </p>
-      <h3>Click this link to visit our site: http://127.0.0.1:5500/blogs.html</h3>
+      <h3>Click this link to visit our site:https://fabrice-dush.github.io/My-Brand-Frontend/blogs.html</h3>
       `,
     };
     const sent = await transporter.sendMail(mailOptions);
