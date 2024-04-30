@@ -172,7 +172,7 @@ export const updateBlog = async function (req: Request, res: Response) {
 
     console.log("Updated blog: ", updatedBlog);
 
-    const url = `http://localhost:8000/api/blogs/${updatedBlog.slug}`;
+    const url = `https://my-brand-backend-n8rt.onrender.com/api/blogs/${updatedBlog.slug}`;
     res
       .status(200)
       .json({ ok: true, message: "success", data: updatedBlog, url });

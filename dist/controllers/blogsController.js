@@ -159,7 +159,7 @@ const updateBlog = function (req, res) {
                     .join("_")
                     .toLowerCase(), image: imagePath }), { new: true, runValidators: true });
             console.log("Updated blog: ", updatedBlog);
-            const url = `http://localhost:8000/api/blogs/${updatedBlog.slug}`;
+            const url = `https://my-brand-backend-n8rt.onrender.com/api/blogs/${updatedBlog.slug}`;
             res
                 .status(200)
                 .json({ ok: true, message: "success", data: updatedBlog, url });
