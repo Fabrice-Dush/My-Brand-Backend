@@ -1,10 +1,7 @@
 import express from "express";
-import {
-  createSubscribers,
-  deleteSubscribers,
-  getSubscribers,
-} from "../controllers/subscribeController";
+
 import { authenticate, authorizeUsers } from "../middleware/middleware";
+import { createSubscribers, deleteSubscribers, getSubscribers } from "../modules/subscribers/controllers/subscriberController";
 const router = express.Router();
 
 router

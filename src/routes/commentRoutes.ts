@@ -1,15 +1,19 @@
 import express from "express";
-import {
-  deleteComment,
-  createComment,
-} from "./../controllers/commentsControllers";
 
-import { authenticate, authorizeComment } from "../middleware/middleware";
+import {
+  authenticate,
+  authorizeComment,
+  isVerifiedFun,
+} from "../middleware/middleware";
+import {
+  createComment,
+  deleteComment,
+} from "../modules/comments/controllers/commentController";
 
 const router = express.Router({ mergeParams: true });
 
-router.delete("/:id", authenticate, authorizeComment, deleteComment);
+router.delete("/:id", authenticate, isVerifiedFun, authorizeComment, deleteComment);
 
-router.post("/", authenticate, createComment);
+router.post("/", authenticate, isVerifiedFun, createComment);
 
 export default router;

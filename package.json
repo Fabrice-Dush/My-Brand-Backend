@@ -30,6 +30,7 @@
     "validator": "^13.11.0"
   },
   "devDependencies": {
+    "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@types/bcrypt": "^5.0.2",
     "@types/cookie-parser": "^1.4.7",
     "@types/cors": "^2.8.17",
@@ -40,6 +41,8 @@
     "@types/multer": "^1.4.11",
     "@types/node": "^20.12.7",
     "@types/nodemailer": "^6.4.14",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.6",
     "@types/validator": "^13.11.9",
     "chai": "^5.1.0",
     "chai-http": "^4.4.0",

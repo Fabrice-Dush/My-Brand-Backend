@@ -22,6 +22,11 @@ const commentsModel_1 = __importDefault(require("./commentsModel"));
 const { Schema } = mongoose_1.default;
 const { isEmail } = validator_1.default;
 const userSchema = new Schema({
+    OTP: String,
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
     role: {
         type: String,
         default: "user",

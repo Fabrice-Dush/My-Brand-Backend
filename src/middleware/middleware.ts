@@ -10,8 +10,13 @@ export const authenticate = async function (
   next: NextFunction
 ) {
   try {
-    const token: any = req.headers.token;
-    if (!token) throw new Error("You need to login to access this resource");
+    let token: any;
+    if (req.headers.authorization?.includes("Bearer")) {
+      token = req.headers.authorization.split(" ").at(-1);
+    }
+
+    if (!token)
+      throw new Error("You don't have permission to access this resource");
     const decoded: any = await jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.id);
     if (!user) throw new Error("Token is incorrect. Logout and login again.");
@@ -23,7 +28,7 @@ export const authenticate = async function (
     res.status(401).json({
       ok: false,
       message: "fail",
-      errors: { message: "You need to login to access this resource" },
+      errors: { message: "You don't have permission to access this resource" },
     });
   }
 };
@@ -92,5 +97,21 @@ export const authorizeComment = async function (
     });
   } catch (err) {
     throw err;
+  }
+};
+
+export const isVerifiedFun = async function (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    if (!req.body.authenticatedUser?.isVerified)
+      throw new Error("Verify your account first");
+    next();
+  } catch (err: any) {
+    res
+      .status(500)
+      .json({ ok: false, message: "fail", errors: { message: err.message } });
   }
 };

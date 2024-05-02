@@ -1,0 +1,20 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const router = express_1.default.Router();
+const userRoutes_1 = __importDefault(require("./userRoutes"));
+const contactRoutes_1 = __importDefault(require("./contactRoutes"));
+const blogRoutes_1 = __importDefault(require("./blogRoutes"));
+const commentRoutes_1 = __importDefault(require("./commentRoutes"));
+const subscribeRoutes_1 = __importDefault(require("./subscribeRoutes"));
+const likeRoutes_1 = __importDefault(require("./likeRoutes"));
+router.use("/", userRoutes_1.default);
+router.use("/contact", contactRoutes_1.default);
+router.use("/blogs", blogRoutes_1.default);
+router.use("/blogs/:slug/comments", commentRoutes_1.default);
+router.use("/subscribe", subscribeRoutes_1.default);
+router.use("/blogs/:slug/likes", likeRoutes_1.default);
+exports.default = router;
