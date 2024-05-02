@@ -1,17 +1,19 @@
 import express from "express";
+
+import { authenticate, authorizeUsers } from "../middleware/middleware";
 import {
+  deleteUser,
+  getUsers,
   login,
   signup,
-  logout,
-  getUsers,
-  deleteUser,
-} from "../controllers/usersController";
-import { authenticate, authorizeUsers } from "../middleware/middleware";
+  verifyAccount,
+} from "../modules/users/controllers/userController";
 const router = express.Router();
+
+router.route("/verify").get(verifyAccount);
 
 router.route("/login").post(login);
 router.route("/signup").post(signup);
-router.get("/logout", logout);
 
 router.route("/users").get(authenticate, authorizeUsers, getUsers);
 

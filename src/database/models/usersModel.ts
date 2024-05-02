@@ -8,6 +8,11 @@ const { Schema } = mongoose;
 const { isEmail } = validator;
 
 const userSchema = new Schema({
+  OTP: String,
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
   role: {
     type: String,
     default: "user",

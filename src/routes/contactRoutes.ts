@@ -1,10 +1,11 @@
 import express from "express";
+
+import { authenticate, authorizeUsers } from "../middleware/middleware";
 import {
-  getMessages,
   createMessage,
   deleteMessage,
-} from "../controllers/contactsController";
-import { authenticate, authorizeUsers } from "../middleware/middleware";
+  getMessages,
+} from "../modules/contacts/controllers/contactController";
 const router = express.Router();
 
 router

@@ -35,6 +35,9 @@ const getBlog = function (req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const { slug } = req.params;
+            const sampleBlog = yield blogsModel_1.default.findOne({ slug });
+            if (!sampleBlog)
+                throw new Error("Blog not Found");
             const blog = yield blogsModel_1.default.findOne({ slug })
                 .populate("author")
                 .populate({
@@ -47,8 +50,9 @@ const getBlog = function (req, res) {
             res.status(200).json({ ok: true, message: "success", data: blog });
         }
         catch (err) {
-            console.log("Error in blog: ", err);
-            res.status(500).json({ ok: false, message: "fail", errors: err });
+            res
+                .status(500)
+                .json({ ok: false, message: "fail", errors: { message: err.message } });
         }
     });
 };
@@ -60,13 +64,13 @@ const transporter = nodemailer_1.default.createTransport({
         pass: "zenz lbbo eorl gltg",
     },
 });
-const sendSubscriptionEmail = (emails) => __awaiter(void 0, void 0, void 0, function* () {
+const sendSubscriptionEmail = (emails, slug) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const mailOptions = {
             from: process.env.MAIL_EMAIL,
             to: `${emails.join(",")}`,
             subject: "A new article was added to the site",
-            html: `<h3>Click this link to visit our site: https://fabrice-dush.github.io/My-Brand-Frontend/blogs.html</h3>`,
+            html: `<h3>Click this link to view the article: http://127.0.0.1:5500/blog.html#${slug}</h3>`,
         };
         yield transporter.sendMail(mailOptions);
         console.log("Subscription email sent successfully");
@@ -130,7 +134,7 @@ const createBlog = function (req, res) {
             //? Sending email to subscribed users
             const subscribers = yield subscribeModel_1.default.find();
             const emails = subscribers.map((subscriber) => subscriber.email);
-            yield sendSubscriptionEmail(emails);
+            yield sendSubscriptionEmail(emails, blog.slug);
             res.status(201).json({ ok: true, message: "success", data: blogs });
         }
         catch (err) {
@@ -154,12 +158,12 @@ const updateBlog = function (req, res) {
                 }
             });
             const updatedBlog = yield blogsModel_1.default.findOneAndUpdate({ slug }, Object.assign(Object.assign({}, req.body), { slug: req.body.title
-                    .replaceAll(/[*./:()?!\n]/g, "")
+                    .replaceAll(/[*\./:()?!\n]/g, "")
                     .split(" ")
                     .join("_")
                     .toLowerCase(), image: imagePath }), { new: true, runValidators: true });
-            console.log("Updated blog: ", updatedBlog);
-            const url = `https://my-brand-backend-n8rt.onrender.com/api/blogs/${updatedBlog.slug}`;
+            //  const url = `https://my-brand-backend-n8rt.onrender.com/api/blogs/${updatedBlog.slug}`;
+            const url = `http://localhost:8000/api/blogs/${updatedBlog.slug}`;
             res
                 .status(200)
                 .json({ ok: true, message: "success", data: updatedBlog, url });

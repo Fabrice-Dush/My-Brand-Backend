@@ -1,23 +1,41 @@
 import express from "express";
-
-import {
-  getBlog,
-  getBlogs,
-  createBlog,
-  updateBlog,
-  deleteBlog,
-  uploadUserPhoto,
-} from "../controllers/blogsController";
-import { authenticate, authorizeBlog } from "../middleware/middleware";
-
 const router = express.Router();
 
-router.route("/").get(getBlogs).post(uploadUserPhoto, authenticate, createBlog);
+import {
+  authenticate,
+  authorizeBlog,
+  isVerifiedFun,
+} from "../middleware/middleware";
+import {
+  createBlog,
+  deleteBlog,
+  getBlog,
+  getBlogs,
+  updateBlog,
+  uploadUserPhoto,
+} from "../modules/blogs/controllers/blogControllers";
+
+/**
+ * @swagger
+ * /:
+ *  get:
+ *      summary: This api endpoint is used to get all the blogs
+ *      description: This api endpoint is used to get all the blogs
+ *      responses:
+ *          200:
+ *              description: To test GET method
+
+ */
+// router.get("/", getBlogs);
+router
+  .route("/")
+  .get(getBlogs)
+  .post(uploadUserPhoto, authenticate, isVerifiedFun, createBlog);
 
 router
   .route("/:slug")
   .get(getBlog)
-  .put(uploadUserPhoto, authenticate, authorizeBlog, updateBlog)
-  .delete(authenticate, authorizeBlog, deleteBlog);
+  .put(uploadUserPhoto, authenticate, isVerifiedFun, authorizeBlog, updateBlog)
+  .delete(authenticate, authorizeBlog, isVerifiedFun, deleteBlog);
 
 export default router;
