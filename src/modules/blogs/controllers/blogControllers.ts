@@ -157,7 +157,13 @@ export const updateBlog = async function (req: Request, res: Response) {
     const url = `https://my-brand-backend-n8rt.onrender.com/api/blogs/${updatedBlog.slug}`;
     res
       .status(200)
-      .json({ ok: true, message: "success", data: updatedBlog, url });
+      .json({
+        ok: true,
+        message: "success",
+        data: updatedBlog,
+        url,
+        slug: updatedBlog.slug,
+      });
   } catch (err) {
     console.error("Error updating a blog: ", err);
     res.status(500).json({ ok: false, message: "fail", errors: err });
