@@ -177,7 +177,7 @@ const deleteBlog = function (req, res) {
             res.status(200).json({ ok: true, message: "success", data: blogs });
         }
         catch (err) {
-            console.error("Error deleting a blog: ", err);
+            console.error("Error deleting blog: ", err);
             res.status(500).json({ ok: false, message: "fail", errors: err });
         }
     });
