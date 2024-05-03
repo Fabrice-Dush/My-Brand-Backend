@@ -46,7 +46,7 @@ const transporter = nodemailer.createTransport({
 const sendSignupEmail = async (user) => {
   try {
     const mailOptions = {
-      from: process.env.MAIL_EMAIL,
+      from: "dushimimanafabricerwanda@gmail.com",
       to: user.email,
       subject: "Welcome to our site 😎😎😎",
       html: `
@@ -62,7 +62,7 @@ const sendSignupEmail = async (user) => {
 
 const generateRandomOTP = function () {
   let otp = "";
-  for (let i = 1; i <= 6; i++) {
+  for (let i = 1; i <= 5; i++) {
     otp += Math.floor(Math.random() * 10) + 1;
   }
   return otp;
@@ -72,7 +72,6 @@ export const signup = async function (req: Request, res: Response) {
   try {
     //? Generate random OTP
     const otp = generateRandomOTP();
-    console.log(otp);
 
     const user = {
       fullname: req.body.fullName,

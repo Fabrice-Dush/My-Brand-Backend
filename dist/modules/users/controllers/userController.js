@@ -55,7 +55,7 @@ const transporter = nodemailer_1.default.createTransport({
 const sendSignupEmail = (user) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const mailOptions = {
-            from: process.env.MAIL_EMAIL,
+            from: "dushimimanafabricerwanda@gmail.com",
             to: user.email,
             subject: "Welcome to our site 😎😎😎",
             html: `
@@ -71,7 +71,7 @@ const sendSignupEmail = (user) => __awaiter(void 0, void 0, void 0, function* ()
 });
 const generateRandomOTP = function () {
     let otp = "";
-    for (let i = 1; i <= 6; i++) {
+    for (let i = 1; i <= 5; i++) {
         otp += Math.floor(Math.random() * 10) + 1;
     }
     return otp;
@@ -81,7 +81,6 @@ const signup = function (req, res) {
         try {
             //? Generate random OTP
             const otp = generateRandomOTP();
-            console.log(otp);
             const user = {
                 fullname: req.body.fullName,
                 email: req.body.email,
