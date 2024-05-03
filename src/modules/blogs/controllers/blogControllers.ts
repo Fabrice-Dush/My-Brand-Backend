@@ -127,8 +127,10 @@ export const createBlog = async function (req: Request, res: Response) {
 
     //? Sending email to subscribed users
     const subscribers = await Subscribe.find();
-    const emails = subscribers.map((subscriber) => subscriber.email);
-    await sendSubscriptionEmail(emails, blog.slug);
+    if (subscribers.length > 0) {
+      const emails = subscribers.map((subscriber) => subscriber.email);
+      await sendSubscriptionEmail(emails, blog.slug);
+    }
     res.status(201).json({ ok: true, message: "success", data: blogs });
   } catch (err) {
     console.log("Error creating a new blog");
@@ -155,15 +157,13 @@ export const updateBlog = async function (req: Request, res: Response) {
     const updatedBlog = await updateOneBlog(slug, req.body, imagePath);
 
     const url = `https://my-brand-backend-n8rt.onrender.com/api/blogs/${updatedBlog.slug}`;
-    res
-      .status(200)
-      .json({
-        ok: true,
-        message: "success",
-        data: updatedBlog,
-        url,
-        slug: updatedBlog.slug,
-      });
+    res.status(200).json({
+      ok: true,
+      message: "success",
+      data: updatedBlog,
+      url,
+      slug: updatedBlog.slug,
+    });
   } catch (err) {
     console.error("Error updating a blog: ", err);
     res.status(500).json({ ok: false, message: "fail", errors: err });

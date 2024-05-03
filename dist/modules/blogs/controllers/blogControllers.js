@@ -63,7 +63,7 @@ const sendSubscriptionEmail = (emails, slug) => __awaiter(void 0, void 0, void 0
             from: process.env.MAIL_EMAIL,
             to: `${emails.join(",")}`,
             subject: "A new article was added to the site",
-            html: `<h3>Click this link to view the article: http://127.0.0.1:5500/blog.html#${slug}</h3>`,
+            html: `<h3>Click this link to view the article:https://fabrice-dush.github.io/My-Brand-Frontend/blog.html#${slug}</h3>`,
         };
         yield transporter.sendMail(mailOptions);
         console.log("Subscription email sent successfully");
@@ -125,8 +125,10 @@ const createBlog = function (req, res) {
             const blogs = yield (0, blogRepository_1.getAllBlogs)();
             //? Sending email to subscribed users
             const subscribers = yield subscribeModel_1.default.find();
-            const emails = subscribers.map((subscriber) => subscriber.email);
-            yield sendSubscriptionEmail(emails, blog.slug);
+            if (subscribers.length > 0) {
+                const emails = subscribers.map((subscriber) => subscriber.email);
+                yield sendSubscriptionEmail(emails, blog.slug);
+            }
             res.status(201).json({ ok: true, message: "success", data: blogs });
         }
         catch (err) {
@@ -150,11 +152,14 @@ const updateBlog = function (req, res) {
                 }
             });
             const updatedBlog = yield (0, blogRepository_1.updateOneBlog)(slug, req.body, imagePath);
-            //  const url = `https://my-brand-backend-n8rt.onrender.com/api/blogs/${updatedBlog.slug}`;
-            const url = `http://localhost:8000/api/blogs/${updatedBlog.slug}`;
-            res
-                .status(200)
-                .json({ ok: true, message: "success", data: updatedBlog, url });
+            const url = `https://my-brand-backend-n8rt.onrender.com/api/blogs/${updatedBlog.slug}`;
+            res.status(200).json({
+                ok: true,
+                message: "success",
+                data: updatedBlog,
+                url,
+                slug: updatedBlog.slug,
+            });
         }
         catch (err) {
             console.error("Error updating a blog: ", err);
