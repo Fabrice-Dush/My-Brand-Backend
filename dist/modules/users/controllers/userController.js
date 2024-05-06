@@ -85,7 +85,7 @@ const signup = function (req, res) {
                 fullname: req.body.fullName,
                 email: req.body.email,
                 password: req.body.password,
-                role: "user",
+                // role: "user",
                 OTP: otp,
             };
             if (user.email.includes("dushimimanafabricerwanda@gmail.com"))
