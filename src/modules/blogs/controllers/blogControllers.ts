@@ -91,6 +91,7 @@ cloudinary.config({
   api_secret: "cR6cup_MaLQi0X3t00R4F0D3p3Y",
 });
 
+
 export const createBlog = async function (req: Request, res: Response) {
   try {
     const { id } = req.body.authenticatedUser;
@@ -131,7 +132,9 @@ export const createBlog = async function (req: Request, res: Response) {
       const emails = subscribers.map((subscriber) => subscriber.email);
       await sendSubscriptionEmail(emails, blog.slug);
     }
-    res.status(201).json({ ok: true, message: "success", data: blogs });
+    res
+      .status(201)
+      .json({ ok: true, message: "success", data: blogs, slug: blog.slug });
   } catch (err) {
     console.log("Error creating a new blog");
     console.log(err);

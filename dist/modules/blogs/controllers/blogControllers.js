@@ -129,7 +129,9 @@ const createBlog = function (req, res) {
                 const emails = subscribers.map((subscriber) => subscriber.email);
                 yield sendSubscriptionEmail(emails, blog.slug);
             }
-            res.status(201).json({ ok: true, message: "success", data: blogs });
+            res
+                .status(201)
+                .json({ ok: true, message: "success", data: blogs, slug: blog.slug });
         }
         catch (err) {
             console.log("Error creating a new blog");

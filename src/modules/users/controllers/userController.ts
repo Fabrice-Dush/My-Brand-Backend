@@ -73,11 +73,11 @@ export const signup = async function (req: Request, res: Response) {
     //? Generate random OTP
     const otp = generateRandomOTP();
 
-    const user = {
+    const user: any = {
       fullname: req.body.fullName,
       email: req.body.email,
       password: req.body.password,
-      role: "user",
+      // role: "user",
       OTP: otp,
     };
 

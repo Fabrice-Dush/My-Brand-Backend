@@ -8,12 +8,13 @@ const method_override_1 = __importDefault(require("method-override"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const connect_flash_1 = __importDefault(require("connect-flash"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const swagger_1 = __importDefault(require("./swagger"));
 const cors_1 = __importDefault(require("cors"));
-const swagger_1 = __importDefault(require("./utils/swagger"));
 const allRoutes_1 = __importDefault(require("./routes/allRoutes"));
 const app = (0, express_1.default)();
 dotenv_1.default.config();
 require("./database/config/database");
+(0, swagger_1.default)(app);
 app.use((0, cors_1.default)());
 app.use((0, method_override_1.default)("_method"));
 app.use(express_1.default.json());
@@ -27,5 +28,5 @@ app.use(function (err, req, res, next) {
 });
 app.listen(process.env.PORT, () => {
     console.log(`Server started listening on port ${process.env.PORT}`);
-    (0, swagger_1.default)(app, +process.env.PORT);
 });
+exports.default = app;

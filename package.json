@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
+    "test": "nyc mocha -require ts-node/register 'src/modules/**/*.spec.ts' --timeout 300000 --exit",
     "watch": "tsc -w",
     "start": "nodemon dist/app.js"
   },
@@ -29,6 +29,34 @@
     "swagger-ui-express": "^5.0.0",
     "validator": "^13.11.0"
   },
+  "nyc": {
+    "extends": "@istanbuljs/nyc-config-typescript",
+    "check-coverage": true,
+    "all": true,
+    "include": [
+      "src/**/!(*.test.*).[tj]s?(x)"
+    ],
+    "exclude": [
+      "src/database/**/*.*",
+      "src/modules/**/test/*.ts",
+      "src/index.ts",
+      "src/modules/**/controller/*.ts",
+      "src/modules/**/repository/*.ts",
+      "src/middlewares/swaggerAPIs.ts",
+      "src/middlewares/swaggerConfig.ts",
+      "src/middlewares/uploadImage.ts",
+      "src/middlewares/validation.ts",
+      "src/utils/index.ts"
+    ],
+    "reporter": [
+      "html",
+      "lcov",
+      "text",
+      "text-summary"
+    ],
+    "report-dir": "coverage",
+    "lines": 40
+  },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@types/bcrypt": "^5.0.2",
@@ -37,6 +65,7 @@
     "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/method-override": "^0.0.35",
+    "@types/mocha": "^10.0.6",
     "@types/mongoose": "^5.11.97",
     "@types/multer": "^1.4.11",
     "@types/node": "^20.12.7",
@@ -44,9 +73,10 @@
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.6",
     "@types/validator": "^13.11.9",
-    "chai": "^5.1.0",
+    "chai": "^4.4.1",
     "chai-http": "^4.4.0",
     "jest": "^29.7.0",
-    "mocha": "^10.4.0"
+    "mocha": "^10.4.0",
+    "ts-node": "^10.9.2"
   }
 }
