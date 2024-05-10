@@ -151,7 +151,8 @@ router.get("/:slug", blogControllers_1.getBlog);
  *             schema:
  *               type: object
  */
-router.put("/:slug", blogControllers_1.uploadUserPhoto, middleware_1.authenticate, middleware_1.isVerifiedFun, middleware_1.authorizeBlog, blogControllers_1.updateBlog);
+router.put("/:slug", blogControllers_1.uploadUserPhoto, middleware_1.authenticate, blogControllers_1.updateBlog);
+router.patch("/:slug", middleware_1.authenticate, middleware_1.isVerifiedFun, blogControllers_1.approveBlog);
 /**
  * @swagger
  * /blogs/{slug}:

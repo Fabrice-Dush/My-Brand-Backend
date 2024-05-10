@@ -1,7 +1,8 @@
 import Blog from "./../../../database/models/blogsModel";
 
-export const getAllBlogs = async function () {
-  return await Blog.find().populate("author");
+export const getAllBlogs = async function (role) {
+  if (role === "admin") return await Blog.find().populate("author");
+  return await Blog.find({ isAccepted: true }).populate("author");
 };
 
 export const getSampleBlog = async function (slug: string) {

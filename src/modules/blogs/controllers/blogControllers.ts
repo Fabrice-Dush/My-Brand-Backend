@@ -15,10 +15,12 @@ import {
   getOneUser,
   updateOneuser,
 } from "../../users/repository/userRepository";
+import User from "../../../database/models/usersModel";
 
 export const getBlogs = async function (req: Request, res: Response) {
   try {
-    const blogs = await getAllBlogs();
+    const role = req.headers.role || "user";
+    const blogs = await getAllBlogs(role);
     res.status(200).json({ ok: true, message: "success", data: blogs });
   } catch (err) {
     res.status(500).json({ ok: false, message: "fail", errors: err });
@@ -31,6 +33,8 @@ export const getBlog = async function (req: Request, res: Response) {
     const sampleBlog = await getSampleBlog(slug);
     if (!sampleBlog) throw new Error("Blog not Found");
     const blog = await getOneBlog(slug);
+    if (!blog.isAccepted)
+      throw new Error("This is blog is not approved by the admin yet");
     res.status(200).json({ ok: true, message: "success", data: blog });
   } catch (err: any) {
     res
@@ -54,6 +58,43 @@ const sendSubscriptionEmail = async (emails: string[], slug: string) => {
       to: `${emails.join(",")}`,
       subject: "A new article was added to the site",
       html: `<h3>Click this link to view the article:https://fabrice-dush.github.io/My-Brand-Frontend/blog.html#${slug}</h3>`,
+    };
+    await transporter.sendMail(mailOptions);
+    console.log("Subscription email sent successfully");
+  } catch (error) {
+    console.error("Error sending subscription email:", error);
+  }
+};
+
+const sendMessageEmail = async (user) => {
+  try {
+    const mailOptions = {
+      from: user.email,
+      to: "dushimimanafabricerwanda@gmail.com",
+      subject: `A new blog was created by ${user.fullname} 🚀🚀🚀`,
+      html: `<p>You need to approve in the dashboard before it can be accessed  by anyone else</p>
+      `,
+    };
+    const sent = await transporter.sendMail(mailOptions);
+    console.log("Message sent successfully");
+  } catch (error) {
+    console.error("Error sending subscription email:", error);
+  }
+};
+
+const sendApprovalEmail = async (owner, slug: string, approved: boolean) => {
+  try {
+    const mailOptions = {
+      from: process.env.MAIL_EMAIL,
+      to: owner.email,
+      subject: approved
+        ? "Your article was approved by the admin"
+        : "Your article is not approved yet.",
+      html: `<h3>${
+        approved
+          ? `Click this link to view your article:https://fabrice-dush.github.io/My-Brand-Frontend/blog.html#${slug}`
+          : "Wait until it is approved by the admin"
+      }</h3>`,
     };
     await transporter.sendMail(mailOptions);
     console.log("Subscription email sent successfully");
@@ -91,7 +132,6 @@ cloudinary.config({
   api_secret: "cR6cup_MaLQi0X3t00R4F0D3p3Y",
 });
 
-
 export const createBlog = async function (req: Request, res: Response) {
   try {
     const { id } = req.body.authenticatedUser;
@@ -119,12 +159,14 @@ export const createBlog = async function (req: Request, res: Response) {
 
     const user = await getOneUser(id);
     if (!user) throw new Error("User not found");
+    if (user.role === "admin") blog.isAccepted = true;
+
     blog.author = user;
     user.blogs.push(blog);
     const userBlogs = [...user.blogs];
     await blog.save();
     await updateOneuser(user.id, userBlogs);
-    const blogs = await getAllBlogs();
+    const blogs = await getAllBlogs(req.body.authenticatedUser.role);
 
     //? Sending email to subscribed users
     const subscribers = await Subscribe.find();
@@ -132,6 +174,12 @@ export const createBlog = async function (req: Request, res: Response) {
       const emails = subscribers.map((subscriber) => subscriber.email);
       await sendSubscriptionEmail(emails, blog.slug);
     }
+
+    if (user.role !== "admin") {
+      //? Sending email to the admin
+      await sendMessageEmail(user);
+    }
+
     res
       .status(201)
       .json({ ok: true, message: "success", data: blogs, slug: blog.slug });
@@ -173,11 +221,35 @@ export const updateBlog = async function (req: Request, res: Response) {
   }
 };
 
+export const approveBlog = async function (req: Request, res: Response) {
+  try {
+    const user = await User.findById(req.body.authenticatedUser.id);
+    if (user.role !== "admin")
+      throw new Error("You don't have permission to approve a blog");
+    const { isAccepted } = req.body;
+    const { slug } = req.params;
+
+    const blog = await Blog.findOneAndUpdate(
+      { slug },
+      { isAccepted },
+      { new: true, runValidators: true }
+    ).populate("author");
+
+    //? send email to the blog owner
+    sendApprovalEmail(blog.author, blog.slug, blog.isAccepted);
+
+    const blogs = await getAllBlogs(req.body.authenticatedUser.role);
+    res.status(200).json({ ok: true, message: "success", data: blogs });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, message: "fail", errors: err.message });
+  }
+};
+
 export const deleteBlog = async function (req: Request, res: Response) {
   try {
     const { slug } = req.params;
     await deleteOneBlog(slug);
-    let blogs = await getAllBlogs();
+    const blogs = await getAllBlogs(req.body.authenticatedUser.role);
     res.status(200).json({ ok: true, message: "success", data: blogs });
   } catch (err) {
     console.error("Error deleting blog: ", err);

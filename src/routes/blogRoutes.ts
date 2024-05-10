@@ -7,6 +7,7 @@ import {
   isVerifiedFun,
 } from "../middleware/middleware";
 import {
+  approveBlog,
   createBlog,
   deleteBlog,
   getBlog,
@@ -167,14 +168,9 @@ router.get("/:slug", getBlog);
  *             schema:
  *               type: object
  */
-router.put(
-  "/:slug",
-  uploadUserPhoto,
-  authenticate,
-  isVerifiedFun,
-  authorizeBlog,
-  updateBlog
-);
+router.put("/:slug", uploadUserPhoto, authenticate, updateBlog);
+
+router.patch("/:slug", authenticate, isVerifiedFun, approveBlog);
 
 /**
  * @swagger

@@ -14,9 +14,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteOneBlog = exports.updateOneBlog = exports.updateBlogBySlug = exports.getOneBlog = exports.getBlogById = exports.getSampleBlog = exports.getAllBlogs = void 0;
 const blogsModel_1 = __importDefault(require("./../../../database/models/blogsModel"));
-const getAllBlogs = function () {
+const getAllBlogs = function (role) {
     return __awaiter(this, void 0, void 0, function* () {
-        return yield blogsModel_1.default.find().populate("author");
+        if (role === "admin")
+            return yield blogsModel_1.default.find().populate("author");
+        return yield blogsModel_1.default.find({ isAccepted: true }).populate("author");
     });
 };
 exports.getAllBlogs = getAllBlogs;

@@ -5,6 +5,10 @@ import User from "./usersModel";
 const { Schema } = mongoose;
 
 const blogSchema = new Schema({
+  isAccepted: {
+    type: Boolean,
+    default: false,
+  },
   image: {
     type: String,
     required: [true, "A blog should have an image"],
