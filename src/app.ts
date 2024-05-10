@@ -22,7 +22,7 @@ app.use(cookieParser());
 app.use(flash());
 
 app.get("/", function (req: Request, res: Response) {
-  res.send("Welcome to my brand");
+  res.send("<h1>Welcome to my brand</h1>");
 });
 
 app.use("/api", allRoutes);
