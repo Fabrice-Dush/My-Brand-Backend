@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import Contact from "./../../../database/models/contactsModel";
 import nodemailer from "nodemailer";
 import {
   createNewMessage,
@@ -15,13 +14,13 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const sendMessageEmail = async (email: string) => {
+const sendMessageEmail = async (contact) => {
   try {
     const mailOptions = {
-      from: email,
+      from: contact.email,
       to: "dushimimanafabricerwanda@gmail.com",
-      subject: "You have a message on your site 😎😎😎",
-      html: `<p>You can reply to it or delete it if you want</p>
+      subject: `${contact.subject}`,
+      html: `<p>${contact.message}</p>
       `,
     };
     const sent = await transporter.sendMail(mailOptions);
@@ -39,7 +38,7 @@ export const createMessage = async function (req: Request, res: Response) {
   try {
     const newContact = await createNewMessage({ ...req.body });
 
-    await sendMessageEmail(newContact.email);
+    await sendMessageEmail(newContact);
     res.status(200).json({
       ok: true,
       message: "success",

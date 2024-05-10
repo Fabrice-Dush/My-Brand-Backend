@@ -22,13 +22,13 @@ const transporter = nodemailer_1.default.createTransport({
         pass: "zenz lbbo eorl gltg",
     },
 });
-const sendMessageEmail = (email) => __awaiter(void 0, void 0, void 0, function* () {
+const sendMessageEmail = (contact) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const mailOptions = {
-            from: email,
+            from: contact.email,
             to: "dushimimanafabricerwanda@gmail.com",
-            subject: "You have a message on your site 😎😎😎",
-            html: `<p>You can reply to it or delete it if you want</p>
+            subject: `${contact.subject}`,
+            html: `<p>${contact.message}</p>
       `,
         };
         const sent = yield transporter.sendMail(mailOptions);
@@ -46,7 +46,7 @@ const createMessage = function (req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const newContact = yield (0, contactRepository_1.createNewMessage)(Object.assign({}, req.body));
-            yield sendMessageEmail(newContact.email);
+            yield sendMessageEmail(newContact);
             res.status(200).json({
                 ok: true,
                 message: "success",
