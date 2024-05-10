@@ -21,6 +21,9 @@ app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use((0, cookie_parser_1.default)());
 app.use((0, connect_flash_1.default)());
+app.get("/", function (req, res) {
+    res.send("Welcome to my brand");
+});
 app.use("/api", allRoutes_1.default);
 //? Global error handling middleware
 app.use(function (err, req, res, next) {

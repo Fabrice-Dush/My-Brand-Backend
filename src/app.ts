@@ -21,6 +21,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(flash());
 
+app.get("/", function (req: Request, res: Response) {
+  res.send("Welcome to my brand");
+});
 
 app.use("/api", allRoutes);
 
